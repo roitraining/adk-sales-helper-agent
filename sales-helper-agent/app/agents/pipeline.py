@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.adk.agents import ParallelAgent, SequentialAgent
+from google.adk.agents import LoopAgent, ParallelAgent, SequentialAgent
 
+from app.agents.critique import critique_agent
 from app.agents.email_agent import email_agent
 from app.agents.infographic_agent import infographic_agent
 from app.agents.output_agent import output_agent
@@ -34,14 +35,27 @@ assets_agent = ParallelAgent(
     ),
 )
 
-# --- Full pipeline: research → summarize → generate assets → present ---
+# --- Stages 1-2: Research loop (research → summarize → critique) ---
+# LoopAgent reruns the sub-agents until the critique_agent approves the
+# summary quality by calling exit_loop, or until max_iterations is reached.
+research_loop = LoopAgent(
+    name="research_loop",
+    sub_agents=[research_agent, summarizer_agent, critique_agent],
+    max_iterations=2,
+    description=(
+        "Iteratively researches the prospect and summarizes findings, "
+        "looping until the critique agent approves the quality or the "
+        "iteration limit is reached."
+    ),
+)
+
+# --- Full pipeline: research loop → generate assets → present ---
 pipeline_agent = SequentialAgent(
     name="pipeline_agent",
     sub_agents=[
-        research_agent,   # Stage 1: Research the prospect
-        summarizer_agent, # Stage 2: Summarize into a prospect brief
-        assets_agent,     # Stage 3: Generate all sales assets in parallel
-        output_agent,     # Stage 4: Assemble and deliver to the user
+        research_loop,  # Stages 1-2: Research + Summarize with quality loop
+        assets_agent,   # Stage 3: Generate all sales assets in parallel
+        output_agent,   # Stage 4: Assemble and deliver to the user
     ],
     description=(
         "Runs the full sales preparation pipeline: research the prospect, "

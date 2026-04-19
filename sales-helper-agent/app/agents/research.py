@@ -35,6 +35,14 @@ def _build_instruction(ctx: ReadonlyContext) -> str:
         f"Their website is {prospect_website}." if prospect_website else ""
     )
 
+    critique_feedback = ctx.state.get("critique_feedback", "")
+    critique_section = (
+        f"\nPREVIOUS CRITIQUE — address these gaps in your research this iteration:\n"
+        f"{critique_feedback}\n"
+        if critique_feedback
+        else ""
+    )
+
     return f"""
 You are an expert business research analyst. Your job is to thoroughly research
 a prospect company so the sales team can walk into their meeting fully prepared.
@@ -46,7 +54,7 @@ CONTEXT:
   - Offering:         {seller_offering}
 
 {website_note}
-
+{critique_section}
 Conduct exactly 3 targeted Google searches:
 
   Search 1 — Company overview and business model:
