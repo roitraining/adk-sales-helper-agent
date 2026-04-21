@@ -20,7 +20,7 @@ from app.agents.exec_summary_agent import exec_summary_agent
 from app.agents.output_agent import output_agent
 from app.agents.presentation_agent import presentation_agent
 from app.agents.research import research_agent
-from app.agents.summarizer import summarizer_agent
+from app.agents.summarizer import writer_agent
 
 # --- Stage 3: Parallel asset generation ---
 # Email, presentation, and executive summary are independent and generated
@@ -39,7 +39,7 @@ assets_agent = ParallelAgent(
 # summary quality by calling exit_loop, or until max_iterations is reached.
 research_loop = LoopAgent(
     name="research_loop",
-    sub_agents=[research_agent, summarizer_agent, critique_agent],
+    sub_agents=[research_agent, writer_agent, critique_agent],
     max_iterations=2,
     description=(
         "Iteratively researches the prospect and summarizes findings, "

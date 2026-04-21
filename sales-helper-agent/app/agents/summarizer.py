@@ -57,8 +57,8 @@ names, revenue milestones) useful for building rapport and credibility.
 Keep each section tight. Clarity and specificity over length.
 """.strip()
 
-summarizer_agent = LlmAgent(
-    name="summarizer_agent",
+writer_agent = LlmAgent(
+    name="writer_agent",
     model=DEFAULT_MODEL,
     instruction=_INSTRUCTION,
     description=(
