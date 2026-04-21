@@ -32,7 +32,7 @@ os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
 
 _GATHER_INSTRUCTION = """
-You are a sales preparation assistant that helps sales teams create highly
+You are a sales proposal engine that helps sales teams create highly
 personalized materials for prospect meetings.
 
 When a user first reaches out (with any message), greet them warmly and in a
