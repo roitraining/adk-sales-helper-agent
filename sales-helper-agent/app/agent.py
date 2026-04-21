@@ -22,8 +22,9 @@ from google.adk.models import Gemini
 from google.genai import types
 
 from app.agents.pipeline import pipeline_agent
-from app.config import FAST_MODEL_NAME
 from app.tools.sales_info import save_sales_info
+
+import app.config
 
 _, project_id = google.auth.default()
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
@@ -65,7 +66,7 @@ Then transfer to pipeline_agent.
 root_agent = Agent(
     name="root_agent",
     model=Gemini(
-        model=FAST_MODEL_NAME,
+    model=app.config.DEFAULT_MODEL,
         retry_options=types.HttpRetryOptions(attempts=3),
     ),
     instruction=_GATHER_INSTRUCTION,

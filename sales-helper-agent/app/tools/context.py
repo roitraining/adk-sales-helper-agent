@@ -37,10 +37,4 @@ def get_sales_context(tool_context: ToolContext) -> dict:
         "presentation_result": tool_context.state.get("presentation_result", ""),
         "presentation_url": tool_context.state.get("presentation_url", ""),
         "presentation_gcs_path": tool_context.state.get("presentation_gcs_path", ""),
-        "infographic_artifact_key": tool_context.state.get(
-            "infographic_artifact_key", ""
-        ),
-        "infographic_status": tool_context.state.get("infographic_status", ""),
-        "infographic_url": tool_context.state.get("infographic_url", ""),
-        "infographic_gcs_path": tool_context.state.get("infographic_gcs_path", ""),
     }

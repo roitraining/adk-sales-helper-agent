@@ -14,7 +14,7 @@
 
 from google.adk.agents import LlmAgent
 
-from app.config import FAST_MODEL_NAME
+from app.config import DEFAULT_MODEL
 from app.tools.context import get_sales_context
 
 _INSTRUCTION = """
@@ -59,7 +59,7 @@ Keep each section tight. Clarity and specificity over length.
 
 summarizer_agent = LlmAgent(
     name="summarizer_agent",
-    model=FAST_MODEL_NAME,
+    model=DEFAULT_MODEL,
     instruction=_INSTRUCTION,
     description=(
         "Synthesizes raw research into a structured, actionable prospect brief."

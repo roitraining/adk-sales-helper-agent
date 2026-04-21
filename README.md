@@ -1,6 +1,6 @@
 # Sales Helper Agent
 
-A multi-agent AI assistant that prepares sales teams for prospect meetings. Given basic information about the seller and the prospect, it autonomously researches the prospect, then generates a personalized email, a browser-ready slide presentation, and an AI-generated infographic — all in one conversation.
+A multi-agent AI assistant that prepares sales teams for prospect meetings. Given basic information about the seller and the prospect, it autonomously researches the prospect, then generates a personalized email and a browser-ready slide presentation — all in one conversation.
 
 Built with [Google ADK](https://google.github.io/adk-docs/) and deployed to [Vertex AI Agent Engine](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/overview).
 
@@ -19,8 +19,7 @@ Then it goes to work automatically:
 2. Summarizes findings into a structured prospect brief
 3. Writes a personalized introductory email
 4. Builds a 6-slide HTML presentation (uploaded to Cloud Storage, browser-ready)
-5. Generates an AI infographic leave-behind (uploaded to Cloud Storage)
-6. Delivers everything in a single formatted response with links
+5. Delivers everything in a single formatted response with links
 
 ---
 
@@ -38,13 +37,11 @@ sales-helper-agent/
 │   │   ├── summarizer.py         # Summarizes research into a prospect brief
 │   │   ├── email_agent.py        # Writes personalized intro email
 │   │   ├── presentation_agent.py # Generates HTML slide deck + uploads to GCS
-│   │   ├── infographic_agent.py  # Generates AI infographic image + uploads to GCS
 │   │   └── output_agent.py       # Assembles and delivers final results
 │   └── tools/
 │       ├── sales_info.py         # Saves seller/prospect info to session state
 │       ├── context.py            # Reads session state for agents
-│       ├── gcs_upload.py         # Uploads HTML presentations to GCS
-│       └── image_generation.py   # Calls Gemini image API, uploads PNG to GCS
+│       └── gcs_upload.py         # Uploads HTML presentations to GCS
 ├── deployment/                   # Terraform infrastructure
 ├── notebooks/                    # Testing and evaluation notebooks
 ├── tests/                        # Unit, integration, and load tests
@@ -59,7 +56,7 @@ sales-helper-agent/
 - **uv** — Python package manager — [Install](https://docs.astral.sh/uv/getting-started/installation/)
 - **Google Cloud SDK** — [Install](https://cloud.google.com/sdk/docs/install)
 - **A GCP project** with Vertex AI and Cloud Storage enabled
-- **Two GCS buckets** — one for assets (presentations, infographics), one for logs
+- **Two GCS buckets** — one for generated presentation assets, one for logs
 - **ADC credentials** — run `gcloud auth application-default login`
 
 ---
@@ -82,10 +79,9 @@ All settings are in `app/config.py` and read from environment variables:
 |---|---|---|
 | `GOOGLE_CLOUD_PROJECT` | _(required)_ | GCP project ID |
 | `GOOGLE_CLOUD_LOCATION` | `us-east4` | Vertex AI region |
-| `ASSETS_BUCKET_NAME` | `tmp-adk-test-assets` | GCS bucket for presentations and infographics |
+| `ASSETS_BUCKET_NAME` | `tmp-adk-test-assets` | GCS bucket for generated presentations |
 | `LOGS_BUCKET_NAME` | `tmp-adk-test-logs` | GCS bucket for ADK session artifacts |
 | `FAST_MODEL_NAME` | `gemini-2.5-flash` | Model used for all text agents |
-| `IMAGE_MODEL_NAME` | `gemini-2.5-flash-image` | Model used for infographic generation |
 
 Set these in your shell or a `.env` file before running locally.
 
@@ -112,7 +108,7 @@ gcloud config set project <your-project-id>
 make deploy
 ```
 
-The deploy script automatically passes `ASSETS_BUCKET_NAME`, `LOGS_BUCKET_NAME`, and `IMAGE_MODEL_NAME` as environment variables to the deployed agent. `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION` are injected automatically by Agent Engine.
+The deploy script automatically passes `ASSETS_BUCKET_NAME` and `LOGS_BUCKET_NAME` as environment variables to the deployed agent. `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION` are injected automatically by Agent Engine.
 
 After deploying, register with Gemini Enterprise:
 
@@ -164,20 +160,13 @@ User
 │  outreach email  │   └──────────────┬───────────────┘
 │  ready to send   │                  │
 └──────────────────┘                  ▼
-          │            ┌──────────────────────────────┐
-          │            │ 6. Create Infographic         │
-          │            │    AI-generated visual        │
-          │            │    Upload to Cloud Storage    │
-          │            └──────────────┬───────────────┘
-          │                           │
           └───────────┬───────────────┘
                       │
                       ▼
 ┌─────────────────────────────────────────────────────┐
-│ 7. Deliver Results                                  │
+│ 6. Deliver Results                                  │
 │    📧 Email draft                                   │
 │    📊 Presentation link (browser-ready)             │
-│    🖼  Infographic link                             │
 └─────────────────────────────────────────────────────┘
                       │
                       ▼

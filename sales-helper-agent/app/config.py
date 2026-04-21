@@ -27,17 +27,13 @@ import os
 # GCP project that owns the Vertex AI and GCS resources.
 PROJECT_ID: str = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
 
-# Region used for Vertex AI calls (image generation requires a concrete region,
-# not "global").
+# Region used for Vertex AI calls.
 LOCATION: str = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-east4")
-# Image generation models do not support "global" — fall back to us-east4.
-IMAGE_LOCATION: str = LOCATION if LOCATION != "global" else "us-east4"
 
 # ---------------------------------------------------------------------------
 # GCS buckets
 # ---------------------------------------------------------------------------
-
-# Bucket for generated sales assets (HTML presentations, infographic PNGs).
+# Bucket for generated sales assets (HTML presentations).
 ASSETS_BUCKET_NAME: str = os.environ.get("ASSETS_BUCKET_NAME", "tmp-adk-test-assets")
 
 # Bucket for agent run logs and ADK artifacts.
@@ -46,14 +42,17 @@ LOGS_BUCKET_NAME: str = os.environ.get("LOGS_BUCKET_NAME", "tmp-adk-test-logs")
 # ---------------------------------------------------------------------------
 # Model names
 # ---------------------------------------------------------------------------
-
 # Full-quality model — reserved for production quality generation.
-PRO_MODEL_NAME: str = os.environ.get("PRO_MODEL_NAME", "gemini-2.5-pro")
+PRO_MODEL_NAME: str = os.environ.get("PRO_MODEL_NAME", "gemini-3.1-pro-preview")
 
-# Fast, cost-effective model — used for all agents during development/testing.
-FAST_MODEL_NAME: str = os.environ.get("FAST_MODEL_NAME", "gemini-2.5-flash")
+# Fast, cost-effective model — used for agents that do not require full-quality generation.
+FAST_MODEL_NAME: str = os.environ.get("FAST_MODEL_NAME", "gemini-3.1-flash-preview")
 
-# Image generation model.
-IMAGE_MODEL_NAME: str = os.environ.get(
-    "IMAGE_MODEL_NAME", "gemini-2.5-flash-image"
-)
+# Lightweight, minimal context model — used in development/testing to reduce latency and cost.
+LITE_MODEL_NAME: str = os.environ.get("LITE_MODEL_NAME", "gemini-3.1-flash-lite-preview")
+
+# Single model selector used by all agents (override with CURRENT_MODEL env var).
+DEFAULT_MODEL: str = os.environ.get("CURRENT_MODEL", LITE_MODEL_NAME)
+
+
+

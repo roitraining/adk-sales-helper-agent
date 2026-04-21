@@ -14,7 +14,7 @@
 
 from google.adk.agents import LlmAgent
 
-from app.config import FAST_MODEL_NAME
+from app.config import DEFAULT_MODEL
 
 
 def _build_instruction(ctx):
@@ -23,7 +23,7 @@ def _build_instruction(ctx):
     email_draft = ctx.state.get("email_draft", "*(email not generated)*")
     research_summary = ctx.state.get("research_summary", "*(not available)*")
     presentation_url = ctx.state.get("presentation_url", "")
-    infographic_url = ctx.state.get("infographic_url", "")
+    exec_summary_url = ctx.state.get("exec_summary_url", "")
 
     presentation_section = (
         f"👉 **[Open Presentation]({presentation_url})**\n\n"
@@ -32,11 +32,11 @@ def _build_instruction(ctx):
         else "*(Presentation could not be uploaded — check ASSETS_BUCKET_NAME configuration.)*"
     )
 
-    infographic_section = (
-        f"![Infographic]({infographic_url})\n\n"
-        f"👉 **[Download Infographic]({infographic_url})**"
-        if infographic_url
-        else "*(Infographic could not be generated — check IMAGE_MODEL_NAME configuration.)*"
+    exec_summary_section = (
+        f"👉 **[Open Executive Summary]({exec_summary_url})**\n\n"
+        "*(Single-page leave-behind linking the solution to the prospect's strategic goals.)*"
+        if exec_summary_url
+        else "*(Executive summary could not be uploaded — check ASSETS_BUCKET_NAME configuration.)*"
     )
 
     return f"""You are a professional sales preparation assistant. Your only job is to
@@ -69,9 +69,9 @@ Ready to send — personalize the recipient name before hitting send.
 
 ---
 
-## Infographic Leave-Behind
+## Executive Summary Leave-Behind
 
-{infographic_section}
+{exec_summary_section}
 
 ---
 
@@ -88,7 +88,7 @@ Review and personalize before use.*
 
 output_agent = LlmAgent(
     name="output_agent",
-    model=FAST_MODEL_NAME,
+    model=DEFAULT_MODEL,
     instruction=_build_instruction,
     description=(
         "Assembles and presents all generated sales materials to the user "

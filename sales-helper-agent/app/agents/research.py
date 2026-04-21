@@ -16,7 +16,7 @@ from google.adk.agents import LlmAgent
 from google.adk.agents.readonly_context import ReadonlyContext
 from google.adk.tools import google_search
 
-from app.config import FAST_MODEL_NAME
+from app.config import DEFAULT_MODEL
 
 
 def _build_instruction(ctx: ReadonlyContext) -> str:
@@ -86,7 +86,7 @@ specificity and accuracy are critical.
 
 research_agent = LlmAgent(
     name="research_agent",
-    model=FAST_MODEL_NAME,
+  model=DEFAULT_MODEL,
     instruction=_build_instruction,
     description=(
         "Researches the prospect company via Google Search to build a "

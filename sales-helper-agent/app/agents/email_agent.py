@@ -14,7 +14,7 @@
 
 from google.adk.agents import LlmAgent
 
-from app.config import FAST_MODEL_NAME
+from app.config import DEFAULT_MODEL
 from app.tools.context import get_sales_context
 
 _INSTRUCTION = """
@@ -60,7 +60,7 @@ Do not include any explanation, commentary, or preamble before or after.
 
 email_agent = LlmAgent(
     name="email_agent",
-    model=FAST_MODEL_NAME,
+  model=DEFAULT_MODEL,
     instruction=_INSTRUCTION,
     description="Writes a personalized introductory sales email.",
     tools=[get_sales_context],

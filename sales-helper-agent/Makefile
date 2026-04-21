@@ -39,7 +39,7 @@ deploy:
 		--entrypoint-module=app.agent_engine_app \
 		--entrypoint-object=agent_engine \
 		--requirements-file=app/app_utils/.requirements.txt \
-		--set-env-vars="ASSETS_BUCKET_NAME=$${ASSETS_BUCKET_NAME:-tmp-adk-test-assets},LOGS_BUCKET_NAME=$${LOGS_BUCKET_NAME:-tmp-adk-test-logs},IMAGE_MODEL_NAME=$${IMAGE_MODEL_NAME:-gemini-2.5-flash-image}" \
+		--set-env-vars="ASSETS_BUCKET_NAME=$${ASSETS_BUCKET_NAME:-tmp-adk-test-assets},LOGS_BUCKET_NAME=$${LOGS_BUCKET_NAME:-tmp-adk-test-logs}" \
 		$(if $(AGENT_IDENTITY),--agent-identity) \
 		$(if $(filter command line,$(origin SECRETS)),--set-secrets="$(SECRETS)")
 

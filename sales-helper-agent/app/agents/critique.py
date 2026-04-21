@@ -16,7 +16,7 @@ from google.adk.agents import LlmAgent
 from google.adk.agents.readonly_context import ReadonlyContext
 from google.adk.tools import exit_loop
 
-from app.config import FAST_MODEL_NAME
+import app.config
 
 
 def _build_instruction(ctx: ReadonlyContext) -> str:
@@ -72,7 +72,7 @@ DECISION:
 
 critique_agent = LlmAgent(
     name="critique_agent",
-    model=FAST_MODEL_NAME,
+    model=app.config.DEFAULT_MODEL,
     instruction=_build_instruction,
     description=(
         "Reviews the research summary for quality and specificity. "

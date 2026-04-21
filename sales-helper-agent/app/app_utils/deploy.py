@@ -188,7 +188,7 @@ def setup_agent_identity(client: Any, project: str, display_name: str) -> Any:
 )
 @click.option(
     "--description",
-    default="Multi-agent sales preparation assistant: researches prospects, generates emails, presentations, and infographics.",
+    default="Multi-agent sales preparation assistant: researches prospects, generates emails and presentations.",
     help="Description of the agent",
 )
 @click.option(

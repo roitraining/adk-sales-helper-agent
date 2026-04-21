@@ -16,22 +16,21 @@ from google.adk.agents import LoopAgent, ParallelAgent, SequentialAgent
 
 from app.agents.critique import critique_agent
 from app.agents.email_agent import email_agent
-from app.agents.infographic_agent import infographic_agent
+from app.agents.exec_summary_agent import exec_summary_agent
 from app.agents.output_agent import output_agent
 from app.agents.presentation_agent import presentation_agent
 from app.agents.research import research_agent
 from app.agents.summarizer import summarizer_agent
 
 # --- Stage 3: Parallel asset generation ---
-# Email, presentation, and infographic are independent and generated
+# Email, presentation, and executive summary are independent and generated
 # concurrently to minimize total pipeline latency.
 assets_agent = ParallelAgent(
     name="assets_agent",
-    sub_agents=[email_agent, presentation_agent, infographic_agent],
-
+    sub_agents=[email_agent, presentation_agent, exec_summary_agent],
     description=(
         "Generates the introductory email, slide presentation, and "
-        "infographic leave-behind in parallel."
+        "executive summary leave-behind in parallel."
     ),
 )
 
