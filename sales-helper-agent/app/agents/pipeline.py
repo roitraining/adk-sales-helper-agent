@@ -20,7 +20,7 @@ from app.agents.exec_summary_agent import exec_summary_agent
 from app.agents.output_agent import output_agent
 from app.agents.presentation_agent import presentation_agent
 from app.agents.research import research_agent
-from app.agents.summarizer import writer_agent
+from app.agents.writer import writer_agent
 
 # --- Stage 3: Parallel asset generation ---
 # Email, presentation, and executive summary are independent and generated
