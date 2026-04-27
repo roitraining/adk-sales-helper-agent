@@ -1,5 +1,4 @@
 from google.adk.agents import LlmAgent
-
 from app.config import DEFAULT_MODEL
 from app.tools.context import get_sales_context
 
