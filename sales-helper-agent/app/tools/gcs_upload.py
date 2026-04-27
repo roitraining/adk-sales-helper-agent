@@ -1,17 +1,3 @@
-# Copyright 2026 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 """Tool for uploading generated assets to Google Cloud Storage."""
 
 import logging
@@ -92,7 +78,7 @@ def upload_html_to_gcs(html_content: str, tool_context: ToolContext) -> dict:
     return _upload_html_asset(
         html_content=html_content,
         tool_context=tool_context,
-        filename_prefix="",
+        filename_prefix="presentation-",
         log_label="presentation",
         state_prefix="presentation",
         success_label="Presentation",
