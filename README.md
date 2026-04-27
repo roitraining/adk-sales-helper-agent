@@ -1,4 +1,4 @@
-# Sales Helper Agent
+# Sales Proposal Engine
 
 A multi-agent AI assistant that prepares sales teams for prospect meetings. Given basic information about the seller and the prospect, it autonomously researches the prospect, then generates a personalized email and a browser-ready slide presentation — all in one conversation.
 
@@ -19,7 +19,8 @@ Then it goes to work automatically:
 2. Summarizes findings into a structured prospect brief
 3. Writes a personalized introductory email
 4. Builds a 6-slide HTML presentation (uploaded to Cloud Storage, browser-ready)
-5. Delivers everything in a single formatted response with links
+5. Generates a one-page executive summary leave-behind (also uploaded to Cloud Storage)
+6. Delivers everything in a single formatted response with links
 
 ---
 
@@ -34,9 +35,11 @@ sales-helper-agent/
 │   ├── agents/
 │   │   ├── pipeline.py           # Orchestrates the full agent pipeline
 │   │   ├── research.py           # Prospects research via Google Search
-│   │   ├── summarizer.py         # Summarizes research into a prospect brief
+│   │   ├── writer.py             # Synthesizes research into a structured prospect brief
+│   │   ├── critique.py           # Quality-gates the brief; loops if it doesn't pass
 │   │   ├── email_agent.py        # Writes personalized intro email
 │   │   ├── presentation_agent.py # Generates HTML slide deck + uploads to GCS
+│   │   ├── exec_summary_agent.py # Generates HTML executive summary + uploads to GCS
 │   │   └── output_agent.py       # Assembles and delivers final results
 │   └── tools/
 │       ├── sales_info.py         # Saves seller/prospect info to session state
@@ -79,9 +82,12 @@ All settings are in `app/config.py` and read from environment variables:
 |---|---|---|
 | `GOOGLE_CLOUD_PROJECT` | _(required)_ | GCP project ID |
 | `GOOGLE_CLOUD_LOCATION` | `us-east4` | Vertex AI region |
-| `ASSETS_BUCKET_NAME` | `tmp-adk-test-assets` | GCS bucket for generated presentations |
+| `ASSETS_BUCKET_NAME` | `tmp-adk-test-assets` | GCS bucket for generated presentations and executive summaries |
 | `LOGS_BUCKET_NAME` | `tmp-adk-test-logs` | GCS bucket for ADK session artifacts |
-| `FAST_MODEL_NAME` | `gemini-2.5-flash` | Model used for all text agents |
+| `CURRENT_MODEL` | _(see below)_ | Selects which model all agents use; defaults to `LITE_MODEL_NAME` |
+| `PRO_MODEL_NAME` | `gemini-3.1-pro-preview` | Full-quality model (reserved for production) |
+| `FAST_MODEL_NAME` | `gemini-3.1-flash-preview` | Fast, cost-effective model |
+| `LITE_MODEL_NAME` | `gemini-3.1-flash-lite-preview` | Lightweight model used by default (lower latency and cost) |
 
 Set these in your shell or a `.env` file before running locally.
 

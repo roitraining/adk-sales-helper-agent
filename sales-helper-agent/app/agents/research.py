@@ -86,7 +86,7 @@ specificity and accuracy are critical.
 
 research_agent = LlmAgent(
     name="research_agent",
-  model=DEFAULT_MODEL,
+    model=DEFAULT_MODEL,
     instruction=_build_instruction,
     description=(
         "Researches the prospect company via Google Search to build a "

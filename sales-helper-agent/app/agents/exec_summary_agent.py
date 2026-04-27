@@ -79,7 +79,7 @@ Step 3: Return one sentence only:
 
 exec_summary_agent = LlmAgent(
     name="exec_summary_agent",
-  model=DEFAULT_MODEL,
+    model=DEFAULT_MODEL,
     instruction=_build_instruction,
     description=(
         "Generates a single-page executive summary HTML document linking "

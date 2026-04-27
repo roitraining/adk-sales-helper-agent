@@ -14,8 +14,6 @@
 # limitations under the License.
 
 import os
-
-import google.auth
 from google.adk.agents import Agent
 from google.adk.apps import App
 from google.adk.models import Gemini
@@ -24,12 +22,14 @@ from google.genai import types
 from app.agents.pipeline import pipeline_agent
 from app.tools.sales_info import save_sales_info
 
-import app.config
+import app.config as config
 
-_, project_id = google.auth.default()
-os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
-os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
-os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
+if config.PROJECT_ID:
+    os.environ["GOOGLE_CLOUD_PROJECT"] = config.PROJECT_ID
+
+# Model serving location for Gemini calls (distinct from Agent Engine region).
+os.environ["GOOGLE_CLOUD_LOCATION"] = config.MODEL_LOCATION
+os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = config.GOOGLE_GENAI_USE_VERTEXAI
 
 _GATHER_INSTRUCTION = """
 You are a sales proposal engine that helps sales teams create highly
@@ -66,13 +66,13 @@ Then transfer to pipeline_agent.
 root_agent = Agent(
     name="root_agent",
     model=Gemini(
-    model=app.config.DEFAULT_MODEL,
-        retry_options=types.HttpRetryOptions(attempts=3),
+      model=config.DEFAULT_MODEL,
+      retry_options=types.HttpRetryOptions(attempts=3),
     ),
     instruction=_GATHER_INSTRUCTION,
     description=(
-        "Gathers seller and prospect information from the user, then "
-        "hands off to the sales preparation pipeline."
+      "Gathers seller and prospect information from the user, then "
+      "hands off to the sales preparation pipeline."
     ),
     tools=[save_sales_info],
     sub_agents=[pipeline_agent],

@@ -55,7 +55,7 @@ Step 3: Return one sentence only:
 
 presentation_agent = LlmAgent(
     name="presentation_agent",
-  model=DEFAULT_MODEL,
+    model=DEFAULT_MODEL,
     instruction=_build_instruction,
     description=(
         "Generates a self-contained HTML/CSS/JS 6-slide sales presentation "

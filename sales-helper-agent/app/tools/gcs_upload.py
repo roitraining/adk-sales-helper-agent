@@ -25,6 +25,57 @@ from app.config import ASSETS_BUCKET_NAME
 logger = logging.getLogger(__name__)
 
 
+def _upload_html_asset(
+    *,
+    html_content: str,
+    tool_context: ToolContext,
+    filename_prefix: str,
+    log_label: str,
+    state_prefix: str,
+    success_label: str,
+) -> dict:
+    """Shared uploader for generated HTML assets."""
+    if not ASSETS_BUCKET_NAME:
+        return {
+            "status": "error",
+            "message": "ASSETS_BUCKET_NAME is not configured.",
+        }
+
+    if not html_content or not html_content.strip():
+        return {
+            "status": "error",
+            "message": "No HTML content provided — nothing to upload.",
+        }
+
+    filename = f"{filename_prefix}{uuid.uuid4()}.html"
+    gcs_path = f"gs://{ASSETS_BUCKET_NAME}/{filename}"
+    public_url = f"https://storage.googleapis.com/{ASSETS_BUCKET_NAME}/{filename}"
+
+    try:
+        client = storage.Client()
+        bucket = client.bucket(ASSETS_BUCKET_NAME)
+        blob = bucket.blob(filename)
+        blob.upload_from_string(html_content, content_type="text/html")
+        logger.info("Uploaded %s to %s", log_label, gcs_path)
+    except Exception as exc:
+        logger.error("GCS upload failed: %s", exc)
+        return {
+            "status": "error",
+            "message": f"GCS upload failed: {exc}",
+        }
+
+    tool_context.state[f"{state_prefix}_html"] = html_content
+    tool_context.state[f"{state_prefix}_url"] = public_url
+    tool_context.state[f"{state_prefix}_gcs_path"] = gcs_path
+
+    return {
+        "status": "success",
+        "public_url": public_url,
+        "gcs_path": gcs_path,
+        "message": f"{success_label} uploaded successfully: {public_url}",
+    }
+
+
 def upload_html_to_gcs(html_content: str, tool_context: ToolContext) -> dict:
     """Uploads generated HTML presentation content to GCS.
 
@@ -38,46 +89,14 @@ def upload_html_to_gcs(html_content: str, tool_context: ToolContext) -> dict:
           - gcs_path: The gs:// URI of the uploaded object (on success)
           - message: Human-readable confirmation or error detail
     """
-    if not ASSETS_BUCKET_NAME:
-        return {
-            "status": "error",
-            "message": "ASSETS_BUCKET_NAME is not configured.",
-        }
-
-    if not html_content or not html_content.strip():
-        return {
-            "status": "error",
-            "message": "No HTML content provided — nothing to upload.",
-        }
-
-    filename = f"{uuid.uuid4()}.html"
-    gcs_path = f"gs://{ASSETS_BUCKET_NAME}/{filename}"
-    public_url = f"https://storage.googleapis.com/{ASSETS_BUCKET_NAME}/{filename}"
-
-    try:
-        client = storage.Client()
-        bucket = client.bucket(ASSETS_BUCKET_NAME)
-        blob = bucket.blob(filename)
-        blob.upload_from_string(html_content, content_type="text/html")
-        logger.info("Uploaded presentation to %s", gcs_path)
-    except Exception as exc:
-        logger.error("GCS upload failed: %s", exc)
-        return {
-            "status": "error",
-            "message": f"GCS upload failed: {exc}",
-        }
-
-    # Persist URLs in state so all downstream agents can read them.
-    tool_context.state["presentation_html"] = html_content
-    tool_context.state["presentation_url"] = public_url
-    tool_context.state["presentation_gcs_path"] = gcs_path
-
-    return {
-        "status": "success",
-        "public_url": public_url,
-        "gcs_path": gcs_path,
-        "message": f"Presentation uploaded successfully: {public_url}",
-    }
+    return _upload_html_asset(
+        html_content=html_content,
+        tool_context=tool_context,
+        filename_prefix="",
+        log_label="presentation",
+        state_prefix="presentation",
+        success_label="Presentation",
+    )
 
 
 def upload_exec_summary_to_gcs(html_content: str, tool_context: ToolContext) -> dict:
@@ -93,43 +112,11 @@ def upload_exec_summary_to_gcs(html_content: str, tool_context: ToolContext) -> 
           - gcs_path: The gs:// URI of the uploaded object (on success)
           - message: Human-readable confirmation or error detail
     """
-    if not ASSETS_BUCKET_NAME:
-        return {
-            "status": "error",
-            "message": "ASSETS_BUCKET_NAME is not configured.",
-        }
-
-    if not html_content or not html_content.strip():
-        return {
-            "status": "error",
-            "message": "No HTML content provided — nothing to upload.",
-        }
-
-    filename = f"exec-summary-{uuid.uuid4()}.html"
-    gcs_path = f"gs://{ASSETS_BUCKET_NAME}/{filename}"
-    public_url = f"https://storage.googleapis.com/{ASSETS_BUCKET_NAME}/{filename}"
-
-    try:
-        client = storage.Client()
-        bucket = client.bucket(ASSETS_BUCKET_NAME)
-        blob = bucket.blob(filename)
-        blob.upload_from_string(html_content, content_type="text/html")
-        logger.info("Uploaded executive summary to %s", gcs_path)
-    except Exception as exc:
-        logger.error("GCS upload failed: %s", exc)
-        return {
-            "status": "error",
-            "message": f"GCS upload failed: {exc}",
-        }
-
-    # Persist URLs in state so output_agent can surface the link.
-    tool_context.state["exec_summary_html"] = html_content
-    tool_context.state["exec_summary_url"] = public_url
-    tool_context.state["exec_summary_gcs_path"] = gcs_path
-
-    return {
-        "status": "success",
-        "public_url": public_url,
-        "gcs_path": gcs_path,
-        "message": f"Executive summary uploaded successfully: {public_url}",
-    }
+    return _upload_html_asset(
+        html_content=html_content,
+        tool_context=tool_context,
+        filename_prefix="exec-summary-",
+        log_label="executive summary",
+        state_prefix="exec_summary",
+        success_label="Executive summary",
+    )

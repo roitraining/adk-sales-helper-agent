@@ -24,6 +24,7 @@ from vertexai.agent_engines.templates.adk import AdkApp
 from app.agent import app as adk_app
 from app.app_utils.telemetry import setup_telemetry
 from app.app_utils.typing import Feedback
+import app.config as config
 
 # Load environment variables from .env file at runtime
 load_dotenv()
@@ -32,14 +33,20 @@ load_dotenv()
 class AgentEngineApp(AdkApp):
     def set_up(self) -> None:
         """Initialize the agent engine app with logging and telemetry."""
-        vertexai.init()
+        # Agent Engine deployment uses a regional location (e.g., us-east4).
+        os.environ["GOOGLE_CLOUD_LOCATION"] = config.AGENT_ENGINE_LOCATION
+        if config.PROJECT_ID:
+            os.environ["GOOGLE_CLOUD_PROJECT"] = config.PROJECT_ID
+
+        vertexai.init(
+            project=config.PROJECT_ID or None,
+            location=config.AGENT_ENGINE_LOCATION,
+        )
         setup_telemetry()
         super().set_up()
         logging.basicConfig(level=logging.INFO)
         logging_client = google_cloud_logging.Client()
         self.logger = logging_client.logger(__name__)
-        if gemini_location:
-            os.environ["GOOGLE_CLOUD_LOCATION"] = gemini_location
 
     def register_feedback(self, feedback: dict[str, Any]) -> None:
         """Collect and log feedback."""
@@ -52,14 +59,11 @@ class AgentEngineApp(AdkApp):
         operations[""] = operations.get("", []) + ["register_feedback"]
         return operations
 
-
-gemini_location = os.environ.get("GOOGLE_CLOUD_LOCATION")
-logs_bucket_name = os.environ.get("LOGS_BUCKET_NAME")
 agent_engine = AgentEngineApp(
     app=adk_app,
     artifact_service_builder=lambda: (
-        GcsArtifactService(bucket_name=logs_bucket_name)
-        if logs_bucket_name
+        GcsArtifactService(bucket_name=config.LOGS_BUCKET_NAME)
+        if config.LOGS_BUCKET_NAME
         else InMemoryArtifactService()
     ),
 )

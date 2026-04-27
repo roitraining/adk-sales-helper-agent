@@ -60,7 +60,7 @@ Do not include any explanation, commentary, or preamble before or after.
 
 email_agent = LlmAgent(
     name="email_agent",
-  model=DEFAULT_MODEL,
+    model=DEFAULT_MODEL,
     instruction=_INSTRUCTION,
     description="Writes a personalized introductory sales email.",
     tools=[get_sales_context],

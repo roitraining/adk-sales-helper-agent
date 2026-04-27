@@ -15,15 +15,15 @@
 import logging
 import os
 
+import app.config as config
+
 
 def setup_telemetry() -> str | None:
     """Configure OpenTelemetry and GenAI telemetry with GCS upload."""
     os.environ.setdefault("GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY", "true")
 
-    bucket = os.environ.get("LOGS_BUCKET_NAME")
-    capture_content = os.environ.get(
-        "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", "false"
-    )
+    bucket = config.LOGS_BUCKET_NAME
+    capture_content = config.TELEMETRY_CAPTURE_MESSAGE_CONTENT
     if bucket and capture_content != "false":
         logging.info(
             "Prompt-response logging enabled - mode: NO_CONTENT (metadata only, no prompts/responses)"
@@ -34,15 +34,13 @@ def setup_telemetry() -> str | None:
         os.environ.setdefault(
             "OTEL_SEMCONV_STABILITY_OPT_IN", "gen_ai_latest_experimental"
         )
-        commit_sha = os.environ.get("COMMIT_SHA", "dev")
         os.environ.setdefault(
             "OTEL_RESOURCE_ATTRIBUTES",
-            f"service.namespace=sales-helper-agent,service.version={commit_sha}",
+            f"service.namespace=sales-helper-agent,service.version={config.COMMIT_SHA}",
         )
-        path = os.environ.get("GENAI_TELEMETRY_PATH", "completions")
         os.environ.setdefault(
             "OTEL_INSTRUMENTATION_GENAI_UPLOAD_BASE_PATH",
-            f"gs://{bucket}/{path}",
+            f"gs://{bucket}/{config.TELEMETRY_PATH}",
         )
     else:
         logging.info(

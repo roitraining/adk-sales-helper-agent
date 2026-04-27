@@ -12,47 +12,60 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Centralised configuration loaded from environment variables.
+"""Centralized runtime configuration loaded from environment variables.
 
-All runtime settings are read here once and imported by the rest of the
-application.  Set overrides in a .env file or via the shell before running.
+This file is the single source of truth for app-level configuration.
+
+Important location split:
+- AGENT_ENGINE_LOCATION controls where Vertex AI Agent Engine is deployed.
+- MODEL_LOCATION controls where Gemini model calls are routed.
 """
 
 import os
 
-# ---------------------------------------------------------------------------
-# Google Cloud project
-# ---------------------------------------------------------------------------
+import google.auth
+
+
+def _resolve_project_id() -> str:
+    """Resolve GCP project ID from env first, then ADC as a fallback."""
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
+    if project_id:
+        return project_id
+
+    try:
+        _, inferred_project_id = google.auth.default()
+        return inferred_project_id or ""
+    except Exception:
+        return ""
+
 
 # GCP project that owns the Vertex AI and GCS resources.
-PROJECT_ID: str = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
+PROJECT_ID: str = _resolve_project_id()
 
-# Region used for Vertex AI calls.
-LOCATION: str = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-east4")
+# Agent Engine deployment region (Vertex AI infrastructure location).
+AGENT_ENGINE_LOCATION: str = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-east4")
 
-# ---------------------------------------------------------------------------
-# GCS buckets
-# ---------------------------------------------------------------------------
-# Bucket for generated sales assets (HTML presentations).
+# Gemini model serving location for ADK model calls.
+MODEL_LOCATION: str = os.environ.get("GOOGLE_CLOUD_MODEL_LOCATION", "global")
+
+# Bucket for generated sales assets (presentations and executive summaries).
 ASSETS_BUCKET_NAME: str = os.environ.get("ASSETS_BUCKET_NAME", "tmp-adk-test-assets")
 
-# Bucket for agent run logs and ADK artifacts.
+# Bucket for Agent Engine artifacts and telemetry logs.
 LOGS_BUCKET_NAME: str = os.environ.get("LOGS_BUCKET_NAME", "tmp-adk-test-logs")
 
-# ---------------------------------------------------------------------------
-# Model names
-# ---------------------------------------------------------------------------
-# Full-quality model — reserved for production quality generation.
-PRO_MODEL_NAME: str = os.environ.get("PRO_MODEL_NAME", "gemini-3.1-pro-preview")
+# Single model selector used by all agents.
+DEFAULT_MODEL: str = os.environ.get("CURRENT_MODEL", "gemini-3.1-flash-lite-preview")
 
-# Fast, cost-effective model — used for agents that do not require full-quality generation.
-FAST_MODEL_NAME: str = os.environ.get("FAST_MODEL_NAME", "gemini-3.1-flash-preview")
+# Enables Gemini-on-Vertex behavior in the SDK.
+GOOGLE_GENAI_USE_VERTEXAI: str = os.environ.get("GOOGLE_GENAI_USE_VERTEXAI", "True")
 
-# Lightweight, minimal context model — used in development/testing to reduce latency and cost.
-LITE_MODEL_NAME: str = os.environ.get("LITE_MODEL_NAME", "gemini-3.1-flash-lite-preview")
-
-# Single model selector used by all agents (override with CURRENT_MODEL env var).
-DEFAULT_MODEL: str = os.environ.get("CURRENT_MODEL", LITE_MODEL_NAME)
+# Telemetry-related settings used by setup_telemetry.
+TELEMETRY_CAPTURE_MESSAGE_CONTENT: str = os.environ.get(
+    "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", "false"
+)
+TELEMETRY_PATH: str = os.environ.get("GENAI_TELEMETRY_PATH", "completions")
+COMMIT_SHA: str = os.environ.get("COMMIT_SHA", "dev")
 
 
 
