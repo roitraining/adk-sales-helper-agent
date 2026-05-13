@@ -4,7 +4,6 @@ from google.adk.tools import google_search
 
 from app.config import DEFAULT_MODEL
 
-
 def _build_instruction(ctx: ReadonlyContext) -> str:
     """Builds a research instruction dynamically from session state.
 

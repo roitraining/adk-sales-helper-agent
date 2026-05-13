@@ -2,7 +2,6 @@ from google.adk.agents import LlmAgent
 
 from app.config import DEFAULT_MODEL
 
-
 def _build_instruction(ctx):
     seller = ctx.state.get("seller_company", "")
     prospect = ctx.state.get("prospect_company", "")
@@ -70,7 +69,6 @@ Ready to send — personalize the recipient name before hitting send.
 *All materials are customized for {prospect} based on live research.
 Review and personalize before use.*
 """
-
 
 output_agent = LlmAgent(
     name="output_agent",
